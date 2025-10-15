@@ -36,3 +36,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+class PasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'} 
+    )
+
+    class Meta:
+        fields = ['password']
