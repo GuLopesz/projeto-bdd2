@@ -5,12 +5,14 @@ from rest_framework import routers
 from users import views as user_views
 from questions import views as question_views
 from subjects import views as subject_views
+from answers import views as answer_views
 
 router = routers.DefaultRouter()
 
 router.register(r'users', user_views.UserViewSet)
 router.register(r'questions', question_views.QuestionsViewSet, basename='questions')
 router.register(r'subjects', subject_views.SubjectViewSet, basename='subjects')
+router.register(r'answers', answer_views.AnswerViewSet, basename='answers')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
