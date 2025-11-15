@@ -36,3 +36,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+# --- ADICIONA ESTA NOVA CLASSE NO FINAL ---
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer leve, apenas para mostrar detalhes do autor nas perguntas.
+    """
+    # Assume que o teu modelo User tem um campo 'avatar_url'
+    # Se não tiver, podes remover.
+    avatar_url = serializers.CharField(read_only=True) 
+
+    class Meta:
+        model = User
+        # Ajusta os campos que queres mostrar no 'author_details'
+        fields = ['id', 'username', 'avatar_url']

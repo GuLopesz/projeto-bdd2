@@ -1,3 +1,10 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Subject
+from .serializers import SubjectSerializer
 
-# Create your views here.
+class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet que apenas permite listar (read-only) as disciplinas.
+    """
+    queryset = Subject.objects.all().order_by('subject_name')
+    serializer_class = SubjectSerializer
