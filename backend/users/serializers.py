@@ -37,6 +37,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
         return user
 
+<<<<<<< HEAD
 # --- ADICIONA ESTA NOVA CLASSE NO FINAL ---
 
 class UserDetailSerializer(serializers.ModelSerializer):
@@ -51,3 +52,14 @@ class UserDetailSerializer(serializers.ModelSerializer):
         model = User
         # Ajusta os campos que queres mostrar no 'author_details'
         fields = ['id', 'username', 'avatar_url']
+=======
+class PasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'} 
+    )
+
+    class Meta:
+        fields = ['password']
+>>>>>>> 1db5e265d06bfe63030caed5ba5051c5f77c7d40

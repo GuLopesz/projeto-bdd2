@@ -2,7 +2,6 @@ from django.db import models
 from django.conf import settings
 from subjects.models import Subject
 
-# Create your models here.
 class Question(models.Model):
     question_title = models.CharField(max_length=100, null=True, blank=True)
     question_body = models.TextField()
