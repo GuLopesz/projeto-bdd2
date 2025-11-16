@@ -1,6 +1,6 @@
 export function getInitial(name?: string | null): string {
   if (!name || name.trim() === '') {
-    return 'A'; // Fallback para nome vazio/nulo
+    return 'A';
   }
   return name.trim().charAt(0).toUpperCase();
 }

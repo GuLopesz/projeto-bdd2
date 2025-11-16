@@ -3,11 +3,11 @@ import { Input } from "../ui/input";
 
 export default function Header() {
   return (
-    <header className="flex justify-center py-4 border-b border-border/40">
+    <header className="flex justify-center py-4 border-b border-primary/30 bg-background/70 backdrop-blur-md w-full fixed top-0 z-50">
 
       <div className="mx-auto flex items-center justify-between gap-16">
-        <a href="/" className="text-2xl font-bold text-primary">
-          DUVIDA AI
+        <a href="#" className="text-2xl font-bold text-primary">
+          IF Pergunta
         </a>
 
         <nav className="flex items-center gap-8">
@@ -16,7 +16,7 @@ export default function Header() {
             <Input
               type="search"
               placeholder="Pesquisar dúvidas..."
-              className="w-full md:w-[250px] lg:w-[300px] pl-10"
+              className="w-full md:w-[250px] lg:w-[300px] pl-10 border-primary"
             />
           </div>
         </nav>
