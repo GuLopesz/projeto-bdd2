@@ -29,11 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
-<<<<<<< HEAD
     'corsheaders',
-=======
     'django_filters',
->>>>>>> 1db5e265d06bfe63030caed5ba5051c5f77c7d40
     'users',
     'questions',
     'subjects',
@@ -127,6 +124,6 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = [
-    'users.backends.EmailBackend',  # O nosso novo backend
-    'django.contrib.auth.backends.ModelBackend', # O backend padrão (para o admin)
+    'users.backends.EmailBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]

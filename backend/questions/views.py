@@ -13,7 +13,6 @@ class QuestionsViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-<<<<<<< HEAD
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -121,5 +120,3 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 {'status': 'Pergunta salva com sucesso'},
                 status=status.HTTP_200_OK
             )
-=======
->>>>>>> 1db5e265d06bfe63030caed5ba5051c5f77c7d40

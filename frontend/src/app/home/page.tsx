@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/common/header"; // Ajuste o caminho se necessário
-import QuestionCard from "@/components/common/questions"; // Ajuste o caminho se necessário
-import Subjects from "@/components/common/subjects"; // Ajuste o caminho se necessário
+import Header from "@/components/common/header";
+import QuestionCard from "@/components/common/questions";
+import Subjects from "@/components/common/subjects";
 
 // --- Interface da Pergunta ---
 interface Question {
@@ -25,7 +25,7 @@ interface Question {
 // --- Interface para os Assuntos ---
 interface Subject {
   id: number;
-  subject_name: string; // O nome do campo do seu modelo
+  subject_name: string;
 }
 
 export default function HomeMainPage() {
@@ -35,28 +35,22 @@ export default function HomeMainPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // --- NOVO ESTADO PARA O FILTRO ---
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
-  // States do formulário de "Perguntar"
   const [newQuestionContent, setNewQuestionContent] = useState("");
   const [selectedSubject, setSelectedSubject] = useState<string>(""); 
   const [isAnonymous, setIsAnonymous] = useState<boolean>(false);
   
   const router = useRouter();
 
-  // --- FUNÇÃO DE FILTRO ATUALIZADA ---
   const handleSelectSubject = (subjectName: string) => {
-    // Se clicar no filtro que já está ativo, desliga-o
     if (activeFilter === subjectName) {
       setActiveFilter(null);
     } else {
-      // Senão, define-o como o filtro ativo
       setActiveFilter(subjectName);
     }
   };
   
-  // --- useEffect (Busca Perguntas e Disciplinas) ---
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
@@ -70,7 +64,6 @@ export default function HomeMainPage() {
       }
     };
     
-    // Busca as disciplinas da API
     const fetchSubjects = async () => {
       try {
         const response = await fetch("http://127.0.0.1:8000/api/subjects/");
@@ -246,7 +239,6 @@ export default function HomeMainPage() {
 
       <div className="flex max-w-6xl mx-auto mt-6 gap-8 px-4">
         <aside className="w-64 md-block">
-          {/* PASSA O FILTRO ATIVO PARA A BARRA LATERAL */}
           <Subjects 
             subjects={subjects.map(s => s.subject_name)}
             onSelect={handleSelectSubject} 
@@ -255,7 +247,6 @@ export default function HomeMainPage() {
         </aside>
 
         <main className="flex-1">
-          {/* Caixa de postar (sem mudanças) */}
           <div className="bg-gray-800 p-4 rounded-lg shadow-lg mb-6 border border-gray-700">
             <textarea
               className="w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -285,13 +276,13 @@ export default function HomeMainPage() {
                   type="checkbox"
                   checked={isAnonymous}
                   onChange={(e) => setIsAnonymous(e.target.checked)}
-                  className="h-4 w-4 rounded bg-gray-700 text-blue-600"
+                  className="h-4 w-4 rounded bg-gray-700 text-primary"
                 />
                 Perguntar anonimamente
               </label>
 
               <button
-                className="bg-blue-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+                className="bg-primary text-white px-5 py-2 rounded-full font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50"
                 onClick={handleCreateQuestion}
                 disabled={!newQuestionContent.trim() || !selectedSubject}
               >
@@ -300,7 +291,6 @@ export default function HomeMainPage() {
             </div>
           </div>
 
-          {/* Renderiza o conteúdo */}
           {renderContent()}
           
         </main>
