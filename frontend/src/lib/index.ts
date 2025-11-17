@@ -23,7 +23,5 @@ export interface Question {
   anonymous: boolean;
   author_details: AuthorDetails;
   reply_count: number;
-  save_count: number;
-  is_saved: boolean;
   subject_name: string;
 }

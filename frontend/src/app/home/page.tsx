@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion"; 
+import { motion, AnimatePresence } from "framer-motion";
 import React from "react";
 
 //componentes
@@ -15,63 +15,65 @@ import ReplyForm from "@/components/common/reply-form";
 //hooks e utils
 import { useFeed } from "@/hooks/use-feed";
 import { formatRelativeTime } from "@/lib/format-date";
-import { Answer } from "@/lib";
+import { Answer } from "@/lib/index";
 
 export default function HomeMainPage() {
-  const { subjects, questions, isLoading, error, saveQuestion, createQuestion, fetchAnswers, postAnswer } = useFeed();
+  const { subjects, questions, isLoading, error, createQuestion, fetchAnswers, submitAnswer } = useFeed();
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
-  
-  //formulario
   const [newQuestionContent, setNewQuestionContent] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState<string>(""); 
+  const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [isAnonymous, setIsAnonymous] = useState<boolean>(false);
-  
-  //respostas
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
-  const [replyContent, setReplyContent] = useState(''); 
-  const [currentAnswers, setCurrentAnswers] = useState<Answer[]>([]);
+  const [answersByQuestion, setAnswersByQuestion] = useState<Record<number, Answer[]>>({});
   const [loadingAnswers, setLoadingAnswers] = useState(false);
+  const [replyContent, setReplyContent] = useState("");
 
   //ui
+  const handleSelectSubject = (name: string) => setActiveFilter(activeFilter === name ? null : name);
   const handleCreateWrapper = async () => {
-      if (!newQuestionContent.trim() || !selectedSubject) return alert("Preencha tudo");
-      
-      const success = await createQuestion({
-          question_body: newQuestionContent,
-          subject: parseInt(selectedSubject),
-          anonymous: isAnonymous
-      });
+    if (!newQuestionContent.trim() || !selectedSubject) return alert("Preencha todos os campos");
 
-      if (success) {
-          setNewQuestionContent("");
-          setSelectedSubject("");
-          setIsAnonymous(false);
-      }
+    const success = await createQuestion({
+      question_body: newQuestionContent,
+      subject: parseInt(selectedSubject),
+      anonymous: isAnonymous
+    });
+
+    if (success) {
+      setNewQuestionContent("");
+      setSelectedSubject("");
+      setIsAnonymous(false);
+    }
   };
 
   const handleReplyToggle = async (qId: number) => {
-      if (replyingToId === qId) {
-          setReplyingToId(null);
-          return;
-      }
-      setReplyingToId(qId);
-      setReplyContent("");
-      setLoadingAnswers(true);
-      
-      try {
-        const data = await fetchAnswers(qId);
-        setCurrentAnswers(data);
-      } catch(e) { console.error(e); } 
-      finally { setLoadingAnswers(false); }
+    if (replyingToId === qId) {
+      setReplyingToId(null);
+      return;
+    }
+    setReplyingToId(qId);
+    if (answersByQuestion[qId]) return;
+
+    setLoadingAnswers(true);
+    try {
+      const data = await fetchAnswers(qId);
+      setAnswersByQuestion(prev => ({ ...prev, [qId]: data }));
+    } catch (e) { console.error(e); } 
+    finally { setLoadingAnswers(false); }
   };
 
   const handleAnswerWrapper = async (qId: number) => {
-      if(!replyContent.trim()) return;
-      const newAnswer = await postAnswer(qId, replyContent);
-      if (newAnswer) {
-          setCurrentAnswers(prev => [...prev, newAnswer]);
-          setReplyContent("");
-      }
+    if (!replyContent.trim()) return;
+    
+    const newAnswer = await submitAnswer(qId, replyContent);
+    
+    if (newAnswer) {
+      setAnswersByQuestion(prev => ({
+        ...prev,
+        [qId]: [...(prev[qId] ?? []), newAnswer]
+      }));
+      setReplyContent("");
+    }
   };
 
   //render
@@ -97,23 +99,34 @@ export default function HomeMainPage() {
               timestamp={formatRelativeTime(q.question_date)}
               isAnonymous={q.anonymous}
               replyCount={q.reply_count}
-              saveCount={q.save_count}
-              isSaved={q.is_saved}
               subjectName={q.subject_name}
-              onSaveClick={saveQuestion}
-              onReplyClick={() => handleReplyToggle(q.id)} 
-              onClick={() => handleReplyToggle(q.id)} 
+              onReplyClick={() => handleReplyToggle(q.id)}
+              onClick={() => handleReplyToggle(q.id)}
             />
 
             <AnimatePresence>
-                {replyingToId === q.id && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                        <div className="ml-8 mb-6 border-l-2 border-gray-700 pl-4 pt-2">
-                            <AnswerList answers={currentAnswers} isLoading={loadingAnswers} />
-                            <ReplyForm value={replyContent} onChange={setReplyContent} onSubmit={() => handleAnswerWrapper(q.id)} />
-                        </div>
-                    </motion.div>
-                )}
+              {replyingToId === q.id && (
+                <motion.div
+                  key={`answer-section-${q.id}`}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <div className="ml-8 mb-6 border-l-2 border-gray-700 pl-4 pt-2">
+                    <AnswerList 
+                      answers={answersByQuestion[q.id] ?? []} 
+                      isLoading={loadingAnswers && !answersByQuestion[q.id]}
+                    />
+                    <ReplyForm 
+                      value={replyContent} 
+                      onChange={setReplyContent} 
+                      onSubmit={() => handleAnswerWrapper(q.id)} 
+                    />
+                  </div>
+                </motion.div>
+              )}
             </AnimatePresence>
           </motion.div>
         ))}
@@ -127,23 +140,23 @@ export default function HomeMainPage() {
       <div className="flex max-w-6xl mx-auto pt-20 gap-8 px-4">
         <aside className="w-64 md-block">
           <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
-              <Subjects subjects={subjects.map((s) => s.subject_name)} onSelect={(name) => setActiveFilter(activeFilter === name ? null : name)} activeSubject={activeFilter} />
+            <Subjects subjects={subjects.map((s) => s.subject_name)} onSelect={handleSelectSubject} activeSubject={activeFilter} />
           </motion.div>
         </aside>
         <main className="flex-1">
-            <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}>
-              <NewQuestionCard
-                newQuestionContent={newQuestionContent}
-                onChangeContent={setNewQuestionContent}
-                subjects={subjects}
-                selectedSubject={selectedSubject}
-                onSelectSubject={setSelectedSubject}
-                isAnonymous={isAnonymous}
-                onToggleAnonymous={setIsAnonymous}
-                onSubmit={handleCreateWrapper}
-                disabled={!newQuestionContent.trim() || !selectedSubject}
-              />
-            </motion.div>
+          <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.4 }}>
+            <NewQuestionCard
+              newQuestionContent={newQuestionContent}
+              onChangeContent={setNewQuestionContent}
+              subjects={subjects}
+              selectedSubject={selectedSubject}
+              onSelectSubject={setSelectedSubject}
+              isAnonymous={isAnonymous}
+              onToggleAnonymous={setIsAnonymous}
+              onSubmit={handleCreateWrapper}
+              disabled={!newQuestionContent.trim() || !selectedSubject}
+            />
+          </motion.div>
           {renderContent()}
         </main>
       </div>
