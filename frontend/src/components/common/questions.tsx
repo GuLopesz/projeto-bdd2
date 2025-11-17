@@ -1,54 +1,42 @@
 import React from "react";
 import { FaRegComment, FaBookmark, FaRegBookmark } from "react-icons/fa";
+import { Trash2, User } from "lucide-react";
 import { getInitial, getAvatarColor } from "@/lib/avatar-fallback";
 
 type QuestionProps = {
   questionId: number;
   authorName?: string;
   authorAvatarUrl?: string;
+  avatarColorKey?: string;
   content: string;
   timestamp: string;
   subjectName?: string; 
   replyCount: number;
   isAnonymous: boolean;
-  
   onClick?: () => void;
   onReplyClick?: (e: React.MouseEvent) => void;
+  onDeleteClick?: (id: number) => void;
 };
 
-const ANONYMOUS_AVATAR = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2EwYTBiYiI+PHBhdGggZD0iTTEyIDJDNi44OCAyIDIgNi44OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC44OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuMzMgMC00LjMyLTEuMDYtNS42OC0yLjczLjc2LTEuNDcgMi41OS0yLjQyIDQuNjgtMi40MiAxLjggMCAzLjQzLjc3IDQuNDcgMi4wNUwxNi45MyAxNmMtMS4yMS0uOTQtMi42My0xLjUtNC4yMy0xLjUtMS4xIDAtMi4xMS4yOS0yLjk5Ljc1QzEwLjQyIDE0LjU2IDEwIDE1LjI0IDEwIDE2YzAgLjg4LjU0IDEuNjIgMS4zMiAyLjA0LjQ1LjI0Ljk2LjM5IDEuNS40Ni4yOC4wNCAuNTYuMDYuODQuMDYuMjkgMCAuNTctLjAyLjg1LS4wNy40NC0uMDggLjg0LS4yMyAxLjIxLS40NS4zOS0uMjIuNzMtLjUzIDEuMDItLjg5LjQ3LS41Ny43Ni0xLjI4Ljc2LTIuMDggMC0xLjM4LTEuMTItMi41LTIuNS0yLjVTOS41IDEyLjYyIDkuNSAxNGMwIC41NS40NSAxIDEgMXMuNS0uNDUgMS0xem0tMy41LTQuNWMuODMgMCAxLjUtLjY3IDEuNS0xLjVzLS42Ny0xLjUtMS41LTEuNS0xLjUuNjctMS41IDEuNS42NyAxLjUgMS41IDEuNXptNyAwYy44MyAwIDEuNS0uNjcgMS41LTEuNXMtLjY3LTEuNS0xLjEtMS41LTEuNS42Ny0xLjUgMS41LjY3IDEuNSAxLjUgMS41eiIvPjwvc3ZnPg==";
-
-const QuestionAvatar = ({ isAnonymous, authorAvatarUrl, authorName }: 
-  Pick<QuestionProps, 'isAnonymous' | 'authorAvatarUrl' | 'authorName'>
-) => {
-  const displayName = isAnonymous ? "Anônimo" : (authorName || "Usuário");
-
+const QuestionAvatar = ({ isAnonymous, authorName, colorKey }: { isAnonymous: boolean, authorName?: string, colorKey?: string }) => {
+  
   if (isAnonymous) {
     return (
-      <img
-        src={ANONYMOUS_AVATAR}
-        alt="Avatar Anônimo"
-        className="w-12 h-12 rounded-full object-cover bg-neutral-700"
-      />
+      <div className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">
+        <User className="w-6 h-6 text-gray-400" />
+      </div>
     );
   }
 
-  if (authorAvatarUrl && authorAvatarUrl.startsWith('http')) {
-    return (
-      <img
-        src={authorAvatarUrl}
-        alt={`Avatar de ${displayName}`}
-        className="w-12 h-12 rounded-full object-cover bg-neutral-700"
-      />
-    );
-  }
+  const displayName = authorName || "Usuário";
+  const nameForColor = colorKey || displayName; 
 
-  const fallbackInitial = getInitial(displayName);
-  const fallbackColor = getAvatarColor(displayName);
+  const fallbackInitial = getInitial(nameForColor);
+  const fallbackColor = getAvatarColor(nameForColor);
 
   return (
     <div 
-      className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold"
+      className="w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-bold shadow-sm"
       style={{ backgroundColor: fallbackColor }}
       title={displayName}
     >
@@ -57,11 +45,11 @@ const QuestionAvatar = ({ isAnonymous, authorAvatarUrl, authorName }:
   );
 };
 
-
 export default function QuestionCard({
   questionId,
   authorName,
   authorAvatarUrl,
+  avatarColorKey,
   content,
   timestamp,
   subjectName,
@@ -69,21 +57,38 @@ export default function QuestionCard({
   isAnonymous,
   onClick,
   onReplyClick,
+  onDeleteClick,
 }: QuestionProps) {
 
   const displayName = isAnonymous ? "Anônimo" : (authorName || "Usuário");
 
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDeleteClick && confirm("Tem certeza que deseja apagar esta pergunta?")) {
+      onDeleteClick(questionId);
+    }
+  };
 
   return (
     <div
       onClick={onClick}
-      className="flex space-x-4 p-4 border-b border-neutral-800 cursor-pointer transition-colors duration-200 hover:bg-neutral-900/50"
+      className="relative flex space-x-4 p-4 border-b border-neutral-800 cursor-pointer transition-colors duration-200 hover:bg-neutral-900/50 group"
     >
+       {onDeleteClick && (
+        <button 
+            onClick={handleDelete}
+            className="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors p-2 z-10"
+            title="Apagar pergunta"
+        >
+            <Trash2 className="w-4 h-4" />
+        </button>
+       )}
+
       <div className="flex-shrink-0">
         <QuestionAvatar 
-          isAnonymous={isAnonymous} 
-          authorAvatarUrl={authorAvatarUrl} 
-          authorName={authorName} 
+            isAnonymous={isAnonymous} 
+            authorName={authorName} 
+            colorKey={avatarColorKey}
         />
       </div>
 
@@ -107,13 +112,12 @@ export default function QuestionCard({
           <span className="text-sm">{timestamp}</span>
 
           <div className="flex items-center space-x-8">
-            <div className="flex items-center space-x-2 group" onClick={onReplyClick}>
-              <button className="p-2 rounded-full group-hover:bg-blue-900/50">
-                <FaRegComment className="group-hover:text-blue-500" />
+            <div className="flex items-center space-x-2 group/btn" onClick={onReplyClick}>
+              <button className="p-2 rounded-full group-hover/btn:bg-blue-900/50">
+                <FaRegComment className="group-hover/btn:text-blue-500" />
               </button>
-              <span className="group-hover:text-blue-500 text-sm">{replyCount > 0 ? replyCount : ""}</span>
+              <span className="group-hover/btn:text-blue-500 text-sm">{replyCount > 0 ? replyCount : ""}</span>
             </div>
-
           </div>
         </div>
       </div>

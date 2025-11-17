@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 
 export function LoginForm() {
   
-  // O seu componente original tinha toggle, mas o atual (que está aqui) é só Login
+  //o seu componente original tinha toggle, mas o atual (que está aqui) é só Login
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +34,6 @@ export function LoginForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // Estamos enviando o valor do email no campo username (correto)
           username: email,
           password: password,
         }),
@@ -49,7 +48,7 @@ export function LoginForm() {
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
 
-      // Redireciona para a página principal /home
+      //redireciona para a página principal /home
       router.push("/home");
       router.refresh(); 
 

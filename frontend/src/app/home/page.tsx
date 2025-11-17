@@ -20,6 +20,7 @@ import { Answer } from "@/lib/index";
 export default function HomeMainPage() {
   const { subjects, questions, isLoading, error, createQuestion, fetchAnswers, submitAnswer } = useFeed();
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState ("");
   const [newQuestionContent, setNewQuestionContent] = useState("");
   const [selectedSubject, setSelectedSubject] = useState<string>("");
   const [isAnonymous, setIsAnonymous] = useState<boolean>(false);
@@ -81,7 +82,11 @@ export default function HomeMainPage() {
     if (isLoading) return <motion.p initial={{opacity:0}} animate={{opacity:1}} className="text-center text-gray-400 mt-10">Carregando...</motion.p>;
     if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
 
-    const filteredList = activeFilter ? questions.filter(q => q.subject_name === activeFilter) : questions;
+    const filteredList = questions.filter((q) => {
+        const matchesSubject = activeFilter ? q.subject_name === activeFilter : true;
+        const matchesSearch = q.question_body.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesSubject && matchesSearch;
+    });
 
     if (filteredList.length === 0) return <p className="text-center text-gray-400 mt-10">Nenhuma pergunta encontrada.</p>;
 
@@ -136,7 +141,7 @@ export default function HomeMainPage() {
 
   return (
     <>
-      <div id="top" className="flex justify-center"><Header /></div>
+      <div id="top" className="flex justify-center"><Header onSearch={setSearchTerm} /></div>
       <div className="flex max-w-6xl mx-auto pt-20 gap-8 px-4">
         <aside className="w-64 md-block">
           <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
