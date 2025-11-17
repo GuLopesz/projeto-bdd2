@@ -1,5 +1,5 @@
 import React from "react";
-import { FaRegComment, FaBookmark, FaRegBookmark } from "react-icons/fa";
+import { FaRegComment } from "react-icons/fa";
 import { Trash2, User } from "lucide-react";
 import { getInitial, getAvatarColor } from "@/lib/avatar-fallback";
 
@@ -19,7 +19,6 @@ type QuestionProps = {
 };
 
 const QuestionAvatar = ({ isAnonymous, authorName, colorKey }: { isAnonymous: boolean, authorName?: string, colorKey?: string }) => {
-  
   if (isAnonymous) {
     return (
       <div className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center border border-neutral-700">
@@ -48,7 +47,6 @@ const QuestionAvatar = ({ isAnonymous, authorName, colorKey }: { isAnonymous: bo
 export default function QuestionCard({
   questionId,
   authorName,
-  authorAvatarUrl,
   avatarColorKey,
   content,
   timestamp,
@@ -74,15 +72,6 @@ export default function QuestionCard({
       onClick={onClick}
       className="relative flex space-x-4 p-4 border-b border-neutral-800 cursor-pointer transition-colors duration-200 hover:bg-neutral-900/50 group"
     >
-       {onDeleteClick && (
-        <button 
-            onClick={handleDelete}
-            className="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors p-2 z-10"
-            title="Apagar pergunta"
-        >
-            <Trash2 className="w-4 h-4" />
-        </button>
-       )}
 
       <div className="flex-shrink-0">
         <QuestionAvatar 
@@ -112,12 +101,25 @@ export default function QuestionCard({
           <span className="text-sm">{timestamp}</span>
 
           <div className="flex items-center space-x-8">
-            <div className="flex items-center space-x-2 group/btn" onClick={onReplyClick}>
-              <button className="p-2 rounded-full group-hover/btn:bg-blue-900/50">
-                <FaRegComment className="group-hover/btn:text-blue-500" />
-              </button>
-              <span className="group-hover/btn:text-blue-500 text-sm">{replyCount > 0 ? replyCount : ""}</span>
-            </div>
+                   
+            {onDeleteClick ? (
+               //se tiver função de deletar, mostra o LIXO no lugar do comentário
+               <div className="flex items-center space-x-2 group/btn" onClick={handleDelete}>
+                  <button className="p-2 rounded-full hover:bg-red-900/50 transition-colors">
+                    <Trash2 className="w-5 h-5 text-gray-500 hover:text-red-500" />
+                  </button>
+                  <span className="text-sm text-gray-500 group-hover/btn:text-red-500">Apagar</span>
+               </div>
+            ) : (
+               //caso contrário, mostra o COMENTÁRIO normal
+               <div className="flex items-center space-x-2 group/btn" onClick={onReplyClick}>
+                  <button className="p-2 rounded-full group-hover/btn:bg-blue-900/50">
+                    <FaRegComment className="group-hover/btn:text-blue-500" />
+                  </button>
+                  <span className="group-hover/btn:text-blue-500 text-sm">{replyCount > 0 ? replyCount : ""}</span>
+               </div>
+            )}
+
           </div>
         </div>
       </div>

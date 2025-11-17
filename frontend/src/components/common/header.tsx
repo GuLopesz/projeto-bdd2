@@ -56,7 +56,7 @@ export default function Header({ onSearch }: HeaderProps) {
                 {isMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-md shadow-lg py-1 z-50">
                         <button 
-                            onClick={() => router.push("/profile")}
+                            onClick={() => router.push("/my-profile")}
                             className="flex w-full items-center px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
                         >
                             <User className="mr-2 h-4 w-4" /> Ver Perfil
