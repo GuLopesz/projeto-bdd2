@@ -23,7 +23,7 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --primary: oklch(0.6818 0.1584 243.35);
-  --primary-foreground: oklch(0.421 0.095 57.708);
+  --primary-foreground: oklch(0.985 0 0);
   --ring: oklch(0.67 0.12 243);
 }
 

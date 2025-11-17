@@ -1,17 +1,16 @@
-from rest_framework import viewsets, permissions
+from rest_framework import generics, permissions
 from .models import Answer
 from .serializers import AnswerSerializer
 
-class isAuthor(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj.author == request.user or request.user.is_staff
-    
-class AnswerViewSet(viewsets.ModelViewSet):
-    queryset = Answer.objects.select_related('author', 'question').all()
+class AnswerListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = AnswerSerializer
-    permissions_classes = [permissions.IsAuthenticatedOrReadOnly, isAuthor]
+    #apenas logados podem postar
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        question_id = self.kwargs.get('question_pk')
+        return Answer.objects.filter(question_id=question_id).order_by('answer_date')
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        question_id = self.kwargs.get('question_pk')
+        serializer.save(author=self.request.user, question_id=question_id)

@@ -10,5 +10,4 @@ class Answer(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="answers")
 
     def __str__(self):
-        return f"Resposta de {self.author.username} on {self.question_title}"
-
+        return f"Resposta de {self.author.username} na {self.question.question_title}"
